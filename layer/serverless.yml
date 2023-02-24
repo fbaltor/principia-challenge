@@ -1,0 +1,20 @@
+org: fbltr
+app: principia-challenge
+service: layer
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    layer:
+      name: base-python
+      description: "Layer that contains the dependencies of the lambda functions to be deployed"
+      compatibleRuntimes:
+        - python3.9
