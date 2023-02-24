@@ -1,0 +1,21 @@
+service: api
+app: principia-challenge
+org: fbltr
+
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: python3.8
+
+functions:
+  hello:
+    handler: handler.hello
+    layers:
+      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:1
+    events:
+      - httpApi:
+          path: /
+          method: get
