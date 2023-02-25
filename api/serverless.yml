@@ -6,14 +6,26 @@ frameworkVersion: '3'
 
 useDotenv: true
 
-custom:
-  bucketName: ${self:service}-bucket-${sls:stage}
-
 provider:
   name: aws
   runtime: python3.9
   environment:
-    S3_BUCKET_NAME: ${self:custom:bucketName}
+    S3_BUCKET_NAME: ${self:app}-${self:service}-bucket-${sls:stage}
+  httpApi:
+    cors: true
+  iam:
+    role:
+      statements:
+        # Allow functions to list all buckets
+        - Effect: Allow
+          Action: 's3:ListBucket'
+          Resource: '*'
+        # Allow functions to read/write objects in a bucket
+        - Effect: Allow
+          Action:
+            - 's3:GetObject'
+            - 's3:PutObject'
+          Resource: '*'
 
 functions:
   hello:
@@ -23,11 +35,19 @@ functions:
     events:
       - httpApi:
           path: /
-          method: get
+          method: post
+  uploadPoll:
+    handler: uploadPoll.uploadPoll
+    layers:
+      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:1
+    events:
+      - httpApi:
+          path: /poll
+          method: post
 
 resources:
   Resources:
     Uploads:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom:bucketName}
+        BucketName: ${self:app}-${self:service}-bucket-${sls:stage}

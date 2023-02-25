@@ -8,8 +8,8 @@ def hello(event, context):
     print(data)
 
     body = {
-        "type": type(data),
-        "data": data,
+        "type": type(data).__name__,
+        "data": data
     }
 
     response = {
