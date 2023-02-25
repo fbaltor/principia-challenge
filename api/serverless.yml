@@ -6,9 +6,14 @@ frameworkVersion: '3'
 
 useDotenv: true
 
+custom:
+  bucketName: ${self:service}-bucket-${sls:stage}
+
 provider:
   name: aws
   runtime: python3.9
+  environment:
+    S3_BUCKET_NAME: ${self:custom:bucketName}
 
 functions:
   hello:
@@ -19,3 +24,10 @@ functions:
       - httpApi:
           path: /
           method: get
+
+resources:
+  Resources:
+    Uploads:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom:bucketName}

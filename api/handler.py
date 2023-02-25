@@ -1,12 +1,15 @@
 import json
-import numpy as np
+
 
 def hello(event, context):
-    statement = f"Random number: {np.random.randint(100)}. Numpy version: {np.__version__}"
+    data = json.loads(event['body'])
+
+    print(type(data))
+    print(data)
 
     body = {
-        "message": statement,
-        "input": event
+        "type": type(data),
+        "data": data,
     }
 
     response = {
