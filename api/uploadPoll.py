@@ -26,12 +26,12 @@ def uploadPoll(event, context):
     """Upload a csv file to the S3 bucket
     """
     try:
-        data = json.loads(event['body'])["data"] # list of list
+        data = json.loads(event['body'])["data"]
         headers = data.pop(0)
-        df = pd.DataFrame(data, columns=headers)
+        df = pd.DataFrame(data, columns=headers).drop_duplicates()
         df.columns = ['id', 'date', 'city_name', 'city_state', 'voting_intentions']
 
-    except pd.errors.ParseError as e:
+    except pd.errors.ParserError as e:
         logging.error(e)
         return {
             "statusCode": 422,
@@ -40,16 +40,25 @@ def uploadPoll(event, context):
     
     s3_client = boto3.client('s3')
 
-    if not poll_already_exists(s3_client):
-        csv_buffer = io.StringIO()
-        df.to_csv(csv_buffer)
+    if poll_already_exists(s3_client):
+        s3_response_object = s3_client.get_object(Bucket=bucket_name, Key=poll_key)
+        old_bytes_stream = s3_response_object['Body'].read()
+        old_string = str(old_bytes_stream, 'utf-8')
+        old_string_stream = io.StringIO(old_string)
+        old_df = pd.read_csv(old_string_stream)
 
-        s3_client.put_object(
-            Body=csv_buffer.getvalue(),
-            Bucket=bucket_name,
-            Key=poll_key
-        )
+        dfs = [old_df, df]
+        df = pd.concat(dfs, axis=0, ignore_index=True).drop_duplicates()
+    
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
 
-        return {
-            "statusCode": 200
-        }
+    s3_client.put_object(
+        Body=csv_buffer.getvalue(),
+        Bucket=bucket_name,
+        Key=poll_key
+    )
+
+    return {
+        "statusCode": 200
+    }
