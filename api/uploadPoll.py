@@ -31,7 +31,7 @@ def uploadPoll(event, context):
         df = pd.DataFrame(data, columns=headers).drop_duplicates()
         df.columns = ['id', 'date', 'city_name', 'city_state', 'voting_intentions']
 
-    except pd.errors.ParserError as e:
+    except (pd.errors.ParserError, ValueError) as e:
         logging.error(e)
         return {
             "statusCode": 422,
