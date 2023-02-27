@@ -45,13 +45,13 @@ functions:
       - httpApi:
           path: /poll
           method: post
-  updateCityCodes:
-    handler: updateCityCodes.updateCityCodes
+  updateCityId:
+    handler: updateCityId.updateCityId
     layers:
       - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:3
     events:
       - httpApi:
-          path: /city-codes
+          path: /update-city-id
           method: get
 
 resources:
