@@ -11,6 +11,7 @@ provider:
   runtime: python3.9
   environment:
     POLL_BUCKET: ${self:app}-${self:service}-poll-bucket-${sls:stage}
+    POPULATION_BUCKET: ${self:app}-${self:service}-population-bucket-${sls:stage}
   httpApi:
     cors: true
   iam:
@@ -31,7 +32,7 @@ functions:
   hello:
     handler: handler.hello
     layers:
-      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:1
+      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:3
     events:
       - httpApi:
           path: /
@@ -39,11 +40,19 @@ functions:
   uploadPoll:
     handler: uploadPoll.uploadPoll
     layers:
-      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:1
+      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:3
     events:
       - httpApi:
           path: /poll
           method: post
+  updateCityCodes:
+    handler: updateCityCodes.updateCityCodes
+    layers:
+      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:3
+    events:
+      - httpApi:
+          path: /city-codes
+          method: get
 
 resources:
   Resources:
@@ -51,3 +60,7 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:app}-${self:service}-poll-bucket-${sls:stage}
+    Population:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:app}-${self:service}-population-bucket-${sls:stage}
