@@ -10,7 +10,7 @@ provider:
   name: aws
   runtime: python3.9
   environment:
-    S3_BUCKET_NAME: ${self:app}-${self:service}-bucket-${sls:stage}
+    POLL_BUCKET: ${self:app}-${self:service}-poll-bucket-${sls:stage}
   httpApi:
     cors: true
   iam:
@@ -47,7 +47,7 @@ functions:
 
 resources:
   Resources:
-    Uploads:
+    Poll:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:app}-${self:service}-bucket-${sls:stage}
+        BucketName: ${self:app}-${self:service}-poll-bucket-${sls:stage}

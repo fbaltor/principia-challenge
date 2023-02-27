@@ -1,17 +1,18 @@
 import json
 import io
+import os
 import pandas as pd
 import logging
 import boto3
 from botocore.exceptions import ClientError
-import os
 
-bucket_name = os.environ['S3_BUCKET_NAME']
+
+poll_bucket = os.environ['POLL_BUCKET']
 poll_key = 'poll.csv'
 
 def poll_already_exists(client):
     try:
-        client.head_object(Bucket=bucket_name, Key=poll_key)
+        client.head_object(Bucket=poll_bucket, Key=poll_key)
     except ClientError as e:
         if e.response['Error']['Code'] == "404":
             return False
@@ -41,7 +42,7 @@ def uploadPoll(event, context):
     s3_client = boto3.client('s3')
 
     if poll_already_exists(s3_client):
-        s3_response_object = s3_client.get_object(Bucket=bucket_name, Key=poll_key)
+        s3_response_object = s3_client.get_object(Bucket=poll_bucket, Key=poll_key)
         old_bytes_stream = s3_response_object['Body'].read()
         old_string = str(old_bytes_stream, 'utf-8')
         old_string_stream = io.StringIO(old_string)
@@ -55,7 +56,7 @@ def uploadPoll(event, context):
 
     s3_client.put_object(
         Body=csv_buffer.getvalue(),
-        Bucket=bucket_name,
+        Bucket=poll_bucket,
         Key=poll_key
     )
 
