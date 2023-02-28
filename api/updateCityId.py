@@ -1,13 +1,11 @@
 import json
 import os
-import re
 import logging
-import unicodedata
 
 import pandas as pd
 import requests
 import boto3
-from utils import key_exists
+from utils import key_exists, format_city_name, create_key
 
 
 URL_LOCALIDADES = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
@@ -42,17 +40,11 @@ def updateCityId(event, context):
     city_json_list = get_city_json(s3)
 
     city_to_id = dict()
-    pattern = re.compile('[\W_]+')
     for city in city_json_list:
-        city_name = unicodedata.normalize('NFD', city['nome'])
-        city_name = city_name.encode("ascii", "ignore")
-        city_name = city_name.decode("utf-8")
-        city_name = pattern.sub('', city_name)
-        city_name = city_name.lower()
-
+        city_name = format_city_name(city['nome'])
         state_name = city['microrregiao']['mesorregiao']['UF']['sigla'].lower()
 
-        key = city_name + "_" + state_name
+        key = create_key(city_name, state_name)
         city_to_id[key] = city['id']
 
     city_to_id_string = json.dumps(city_to_id, indent=2, default=str)

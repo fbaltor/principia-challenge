@@ -12,6 +12,3 @@ def key_exists(client, bucket, file_key):
         logging.error(e)
         raise e
     return True
-
-def get_file(client, bucket, file_key):
-    pass

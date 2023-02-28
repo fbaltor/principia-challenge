@@ -53,6 +53,14 @@ functions:
       - httpApi:
           path: /update-city-id
           method: get
+  updatePopulation:
+    handler: updatePopulation.updatePopulation
+    layers:
+      - arn:aws:lambda:${env:LAYER_NAME}:layer:base-python:3
+    events:
+      - httpApi:
+          path: /update-population
+          method: get
 
 resources:
   Resources:
