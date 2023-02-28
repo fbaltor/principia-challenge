@@ -4,24 +4,14 @@ import os
 import pandas as pd
 import logging
 import boto3
-from botocore.exceptions import ClientError
+from utils import key_exists
 
 
 poll_bucket = os.environ['POLL_BUCKET']
 poll_key = 'poll.csv'
 
 def poll_already_exists(client):
-    try:
-        client.head_object(Bucket=poll_bucket, Key=poll_key)
-    except ClientError as e:
-        if e.response['Error']['Code'] == "404":
-            return False
-        
-        logging.error(e)
-        raise e
-    
-    return True
-
+    return key_exists(client, poll_bucket, poll_key)
 
 def uploadPoll(event, context):
     """Upload a csv file to the S3 bucket

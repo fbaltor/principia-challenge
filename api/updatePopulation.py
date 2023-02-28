@@ -11,17 +11,29 @@ def updatePopulation(event, context):
     """Updates the cities, states and country population bucket
 
         population.json = {
-            year: {
-                countryName: {
-                population: int,
+            countryName: {
+                population: [
+                    {
+                        year: int,
+                        value: int
+                    },
+                ],
                 stateName: {
-                    population: int,
+                    population: [
+                        {
+                            year: int,
+                            value: int
+                        },
+                    ],
                     cityName: {
-                        population: int
+                        population: [
+                            {
+                                year: int,
+                                value: int
+                            },
+                        ]
                     }
                 }
-            }
-
             }
         }
     """

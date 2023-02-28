@@ -7,24 +7,13 @@ import unicodedata
 import pandas as pd
 import requests
 import boto3
-from botocore.exceptions import ClientError
+from utils import key_exists
 
 
 URL_LOCALIDADES = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
 pop_bucket = os.environ['POPULATION_BUCKET']
 city_key = 'city.json'
 city_to_id_key = 'city_to_id.json'
-
-def key_exists(client, bucket, file_key):
-    try:
-        client.head_object(Bucket=bucket, Key=file_key)
-    except ClientError as e:
-        if e.response['Error']['Code'] == "404":
-            return False
-        logging.error(e)
-        raise e
-    return True
-
 
 def city_file_already_exists(client):
     return key_exists(client, pop_bucket, city_key)
