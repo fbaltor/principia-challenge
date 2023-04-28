@@ -49,6 +49,8 @@ def uploadPoll(event, context):
         headers = data.pop(0)
         df = pd.DataFrame(data, columns=headers).drop_duplicates()
         df.columns = ['id', 'date', 'city', 'state', 'voting_intention']
+        df = df[~df['city'].str.contains('#')]
+        df = df[~df['state'].str.contains('#')]
         df['key'] = generate_key_series(df)
         df.drop_duplicates(subset='key', inplace=True)
 
